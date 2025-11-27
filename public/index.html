@@ -1,75 +1,95 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>L8ab.me - Advanced Recon Tool</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L8ab.me - أدوات الهاكينغ الأخلاقي</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="matrix"></div>
   <div class="container">
-    <h1>L8ab<span>'s</span> Tools</h1>
-    <p>أقوى أداة تحليل واستطلاع في العالم العربي</p>
+    <header>
+      <h1>L8ab<span>'s</span> Tools</h1>
+      <p>Advanced Recon & Blacklist Checker</p>
+    </header>
 
-    <div class="scan-box">
-      <input type="text" id="target" placeholder="https://example.com" />
-      <button onclick="scan()">SCAN NOW</button>
+    <div class="input-group">
+      <input type="text" id="target" placeholder="أدخل الرابط أو IP (مثل: example.com)">
+      <button onclick="scanSite()">SCAN SITE</button>
+      <button onclick="checkBlacklist()">CHECK BLACKLIST</button>
     </div>
 
-    <pre id="output">أدخل الرابط واضغط SCAN</pre>
+    <div id="results" class="results"></div>
   </div>
 
-<script>
-async function scan() {
-  const url = document.getElementById('target').value.trim();
-  const output = document.getElementById('output');
-  if (!url) return alert("أدخل رابط صحيح");
+  <script>
+    async function scanSite() {
+      const url = document.getElementById('target').value.trim();
+      const results = document.getElementById('results');
+      if (!url) return alert('أدخل رابط صالح');
 
-  output.textContent = "جاري الاستطلاع على " + url + "\n\n";
-  
-  try {
-    const res = await fetch('/scan', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
-    const data = await res.json();
+      results.innerHTML = '<pre>جاري التحليل على ' + url + '...</pre>';
 
-    output.textContent = `
-هدفك: ${data.domain}
-التاريخ: ${new Date().toLocaleString('ar-SA')}
+      try {
+        const response = await fetch('/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await response.json();
+        results.innerHTML = `
+          <pre>
+Target: ${data.domain || url}
+Time: ${new Date().toLocaleString('ar-SA')}
 
-Whois:
-${data.data?.whois?.substring(0,500) || "غير متوفر"}
+WHOIS: ${data.data?.whois || 'غير متوفر'}
 
-DNS Records:
-${data.data?.dns}
+DNS: ${data.data?.dns || 'لا توجد'}
 
-المنافذ المفتوحة:
-${data.data?.open_ports}
+Ports: ${data.data?.open_ports || 'محظور'}
 
-السيرفرات الفرعية:
-${data.data?.subdomains}
+Subdomains: ${data.data?.subdomains || 'لا شيء'}
 
-الموقع الجغرافي:
-دولة: ${data.data?.geo.country || "غير معروف"}
-مزود الخدمة: ${data.data?.geo.isp || "غير معروف"}
+Geo: ${data.data?.geo?.country || 'غير معروف'} - ISP: ${data.data?.geo?.isp || 'غير معروف'}
 
-التقنيات المستخدمة:
-${data.data?.tech || "غير محدد"}
+Blacklist: ${data.data?.blacklist || 'تحقق يدوياً'}
 
-حالة البلاك ليست:
-${data.data?.blacklist}
+By L8ab.me - Ethical Use Only
+          </pre>
+        `;
+      } catch (e) {
+        results.innerHTML = '<pre>خطأ في التحليل - جرب مرة أخرى</pre>';
+      }
+    }
 
-تم الاستطلاع بواسطة L8ab.me
-للاستخدام الأخلاقي فقط - مع تصريح كتابي
-    `.trim();
-  } catch (e) {
-    output.textContent = "فشل الاستطلاع - جرب مرة أخرى";
-  }
-}
-</script>
+    async function checkBlacklist() {
+      const target = document.getElementById('target').value.trim();
+      const results = document.getElementById('results');
+      if (!target) return alert('أدخل IP أو دومين');
+
+      results.innerHTML = '<pre>جاري فحص البلاك ليست على ' + target + '...</pre>';
+
+      try {
+        const response = await fetch('/blacklist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target })
+        });
+        const data = await response.json();
+        results.innerHTML = `
+          <pre>
+Blacklist Status for ${target}:
+${data.lists ? data.lists.join('\n') : 'Clean'}
+
+Overall: ${data.status || 'نظيف'}
+          </pre>
+        `;
+      } catch (e) {
+        results.innerHTML = '<pre>خطأ في الفحص</pre>';
+      }
+    }
+  </script>
 </body>
 </html>
