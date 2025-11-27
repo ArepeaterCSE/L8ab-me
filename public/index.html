@@ -1,95 +1,83 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L8ab.me - أدوات الهاكينغ الأخلاقي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <title>L8ab Tools | Recon & OSINT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="matrix"></div>
+  <div class="bg"></div>
   <div class="container">
     <header>
-      <h1>L8ab<span>'s</span> Tools</h1>
-      <p>Advanced Recon & Blacklist Checker</p>
+      <h1>L8AB <span>TOOLS</span></h1>
+      <p class="subtitle">Advanced Reconnaissance Platform</p>
     </header>
 
-    <div class="input-group">
-      <input type="text" id="target" placeholder="أدخل الرابط أو IP (مثل: example.com)">
-      <button onclick="scanSite()">SCAN SITE</button>
-      <button onclick="checkBlacklist()">CHECK BLACKLIST</button>
+    <div class="input-box">
+      <input type="text" id="target" placeholder="Enter target (example.com)" autofocus>
+      <button onclick="scan()">SCAN TARGET</button>
     </div>
 
-    <div id="results" class="results"></div>
+    <div id="output" class="output"></div>
   </div>
 
-  <script>
-    async function scanSite() {
-      const url = document.getElementById('target').value.trim();
-      const results = document.getElementById('results');
-      if (!url) return alert('أدخل رابط صالح');
+<script>
+async function scan() {
+  const target = document.getElementById('target').value.trim();
+  const out = document.getElementById('output');
+  if (!target) return alert("Enter a valid target");
 
-      results.innerHTML = '<pre>جاري التحليل على ' + url + '...</pre>';
+  out.innerHTML = `<div class="scan">Scanning ${target}...</div>`;
 
-      try {
-        const response = await fetch('/scan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
-        const data = await response.json();
-        results.innerHTML = `
-          <pre>
-Target: ${data.domain || url}
-Time: ${new Date().toLocaleString('ar-SA')}
+  try {
+    const res = await fetch('/scan', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url: target})
+    });
+    const data = await res.json();
 
-WHOIS: ${data.data?.whois || 'غير متوفر'}
-
-DNS: ${data.data?.dns || 'لا توجد'}
-
-Ports: ${data.data?.open_ports || 'محظور'}
-
-Subdomains: ${data.data?.subdomains || 'لا شيء'}
-
-Geo: ${data.data?.geo?.country || 'غير معروف'} - ISP: ${data.data?.geo?.isp || 'غير معروف'}
-
-Blacklist: ${data.data?.blacklist || 'تحقق يدوياً'}
-
-By L8ab.me - Ethical Use Only
-          </pre>
-        `;
-      } catch (e) {
-        results.innerHTML = '<pre>خطأ في التحليل - جرب مرة أخرى</pre>';
-      }
+    if (data.blacklisted) {
+      out.innerHTML = `<div class="blacklisted">
+        <h2>DOMAIN BLACKLISTED</h2>
+        <p>${data.message}</p>
+        <p>Domain: ${data.domain}</p>
+      </div>`;
+      return;
     }
 
-    async function checkBlacklist() {
-      const target = document.getElementById('target').value.trim();
-      const results = document.getElementById('results');
-      if (!target) return alert('أدخل IP أو دومين');
+    out.innerHTML = `
+<div class="result">
+<pre>
+TARGET      : ${data.domain}
+IP ADDRESS  : ${data.ip}
+COUNTRY     : ${data.country} (${data.city})
+ISP / HOST  : ${data.isp} | ${data.hosting}
+ASN         : ${data.asn}
 
-      results.innerHTML = '<pre>جاري فحص البلاك ليست على ' + target + '...</pre>';
+OPEN PORTS:
+${data.ports}
 
-      try {
-        const response = await fetch('/blacklist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ target })
-        });
-        const data = await response.json();
-        results.innerHTML = `
-          <pre>
-Blacklist Status for ${target}:
-${data.lists ? data.lists.join('\n') : 'Clean'}
+TECHNOLOGIES:
+${data.tech || "Not detected"}
 
-Overall: ${data.status || 'نظيف'}
-          </pre>
-        `;
-      } catch (e) {
-        results.innerHTML = '<pre>خطأ في الفحص</pre>';
-      }
-    }
-  </script>
+WHOIS:
+${data.whois}
+
+SUBDOMAINS:
+${data.subdomains}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+L8ab Tools | Ethical Use Only
+Contact: L8ab@proton.me
+</pre>
+</div>`;
+  } catch (e) {
+    out.innerHTML = `<div class="error">Scan failed – Try again</div>`;
+  }
+}
+</script>
 </body>
 </html>
