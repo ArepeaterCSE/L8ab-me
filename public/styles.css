@@ -1,19 +1,17 @@
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; color:#0f0; font-family:'Courier New',monospace; overflow-x:hidden; position:relative; }
-.matrix { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:-1; }
-.matrix::before { content:""; position:absolute; top:0; left:0; right:0; bottom:0;
-  background:repeating-linear-gradient(90deg,#0f0 0,#000 1px,#000 50px,#0f0 51px);
-  animation:rain 12s linear infinite; opacity:0.15; }
-@keyframes rain { 0%{transform:translateY(-100%)} 100%{transform:translateY(100%)} }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: #0f0; font-family: 'Courier New', monospace; position: relative; overflow-x: hidden; }
+.matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: -1; }
+.matrix::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(90deg, #0f0 0, #000 1px, #000 50px, #0f0 51px); animation: rain 12s linear infinite; opacity: 0.15; }
+@keyframes rain { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
-.container { max-width:1100px; margin:0 auto; padding:40px 20px; text-align:center; }
-h1 { font-family:'Orbitron',sans-serif; font-size:5rem; text-shadow:0 0 30px #0f0; }
-h1 span { color:#fff; }
-p { font-size:1.4rem; margin:20px 0; }
+.container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+header h1 { font-family: 'Orbitron', sans-serif; font-size: 5rem; text-shadow: 0 0 30px #0f0; margin-bottom: 10px; }
+header h1 span { color: #fff; }
+header p { font-size: 1.4rem; opacity: 0.9; }
 
-.scan-box { margin:50px 0; }
-#target { width:65%; padding:18px; font-size:1.3rem; background:#111; border:2px solid #0f0; color:#0f0; outline:none; }
-button { padding:18px 40px; font-size:1.3rem; background:#000; color:#0f0; border:2px solid #0f0; cursor:pointer; font-weight:bold; }
-button:hover { background:#0f0; color:#000; box-shadow:0 0 30px #0f0; }
+.input-group { margin: 50px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+#target { padding: 18px; font-size: 1.3rem; background: #111; border: 2px solid #0f0; color: #0f0; outline: none; width: 300px; }
+button { padding: 18px 40px; font-size: 1.3rem; background: #000; color: #0f0; border: 2px solid #0f0; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+button:hover { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; }
 
-#output { margin-top:40px; background:#111; padding:25px; border:1px dashed #0f0; text-align:right; white-space:pre-wrap; min-height:300px; }
+.results { margin-top: 40px; background: #111; padding: 25px; border: 1px dashed #0f0; text-align: right; min-height: 300px; white-space: pre-wrap; border-radius: 10px; }
