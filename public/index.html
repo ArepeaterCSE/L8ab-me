@@ -3,83 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L8AB PRO • Reconnaissance Platform</title>
-  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800&display=swap" rel="stylesheet">
+  <title>L8ab's Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="particles"></div>
-  
+  <div class="matrix"></div>
   <div class="container">
     <header>
-      <h1><span>L8AB</span> PRO</h1>
-      <p class="tagline">Advanced OSINT & Reconnaissance Platform</p>
+      <h1>L8ab<span>'s</span> Tools</h1>
+      <p class="tagline">Advanced Reconnaissance Terminal</p>
     </header>
 
-    <div class="search-bar">
-      <input type="text" id="target" placeholder="target.com / 1.1.1.1" autocomplete="off" autofocus>
-      <button onclick="scan()">LAUNCH SCAN</button>
+    <div class="scanner-box">
+      <input type="text" id="target" placeholder="https://example.com" autocomplete="off">
+      <button onclick="scan()">SCAN TARGET</button>
     </div>
 
-    <div id="results"></div>
+    <div id="results" class="results"></div>
+
+    <footer>
+      <p>L8ab@proton.me • Use only with permission</p>
+    </footer>
   </div>
 
 <script>
 async function scan() {
-  const input = document.getElementById('target').value.trim();
-  const results = document.getElementById('results');
-  if (!input) return;
+  const url = document.getElementById('target').value.trim();
+  const out = document.getElementById('results');
+  if (!url) return alert("Enter target");
 
-  results.innerHTML = `<div class="card scanning"><div class="loader"></div><p>Acquiring target: ${input}</p></div>`;
+  out.style.display = 'block';
+  out.innerHTML = `<div class="log">Initiating scan on ${url}...</div>`;
 
   try {
-    const r = await fetch('/scan', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({url: input})
-    });
+    const r = await fetch('/scan', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url}) });
     const d = await r.json();
 
     if (d.blacklisted) {
-      results.innerHTML = `
-        <div class="card alert">
-          <h2>BLACKLISTED DOMAIN</h2>
-          <p class="warning">${d.message.replace(/\n/g, '<br>')}</p>
-        </div>`;
+      out.innerHTML = `<div class="blacklisted">${d.message.replace(/\n/g, '<br>')}</div>`;
       return;
     }
 
-    results.innerHTML = `
-<div class="grid">
-  <div class="card"><h3>Target</h3><p>${d.domain || input}</p></div>
-  <div class="card"><h3>IP Address</h3><p>${d.ip}</p></div>
-  <div class="card"><h3>Location</h3><p>${d.location}</p></div>
-  <div class="card"><h3>Organization</h3><p>${d.org}</p></div>
-  <div class="card"><h3>ASN</h3><p>${d.asn}</p></div>
-</div>
-
-<div class="section">
-  <h3>Open Ports</h3>
-  <pre>${d.ports}</pre>
-</div>
-
-<div class="section">
-  <h3>Technologies Detected</h3>
-  <p class="tech">${d.tech}</p>
-</div>
-
-<div class="section">
-  <h3>Subdomains Found</h3>
-  <pre>${d.subdomains}</pre>
-</div>
-
-<div class="footer">
-  <p>L8AB PRO • Ethical Use Only • Contact: L8ab@proton.me</p>
-</div>
+    out.innerHTML = `
+<div class="log">Target: ${d.domain || url}</div>
+<div class="log">IP: ${d.ip} | ${d.country} (${d.city})</div>
+<div class="log">ISP: ${d.isp} • Org: ${d.org}</div>
+<div class="log">Open Ports:<br><pre>${d.ports}</pre></div>
+<div class="log">Technologies: ${d.tech}</div>
+<div class="log">Subdomains:<br><pre>${d.subdomains}</pre></div>
+<div class="log">Whois:<br><pre>${d.whois}</pre></div>
+<div class="log">Scan completed • L8ab's Tools</div>
     `;
-
   } catch (e) {
-    results.innerHTML = `<div class="card error">Scan failed. Target may be down or blocking scans.</div>`;
+    out.innerHTML = `<div class="error">Scan failed or blocked</div>`;
   }
 }
 </script>
