@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L8ab.me - Advanced Recon Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="matrix"></div>
+  <div class="container">
+    <h1>L8ab<span>'s</span> Tools</h1>
+    <p>أقوى أداة تحليل واستطلاع في العالم العربي</p>
+
+    <div class="scan-box">
+      <input type="text" id="target" placeholder="https://example.com" />
+      <button onclick="scan()">SCAN NOW</button>
+    </div>
+
+    <pre id="output">أدخل الرابط واضغط SCAN</pre>
+  </div>
+
+<script>
+async function scan() {
+  const url = document.getElementById('target').value.trim();
+  const output = document.getElementById('output');
+  if (!url) return alert("أدخل رابط صحيح");
+
+  output.textContent = "جاري الاستطلاع على " + url + "\n\n";
+  
+  try {
+    const res = await fetch('/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+
+    output.textContent = `
+هدفك: ${data.domain}
+التاريخ: ${new Date().toLocaleString('ar-SA')}
+
+Whois:
+${data.data?.whois?.substring(0,500) || "غير متوفر"}
+
+DNS Records:
+${data.data?.dns}
+
+المنافذ المفتوحة:
+${data.data?.open_ports}
+
+السيرفرات الفرعية:
+${data.data?.subdomains}
+
+الموقع الجغرافي:
+دولة: ${data.data?.geo.country || "غير معروف"}
+مزود الخدمة: ${data.data?.geo.isp || "غير معروف"}
+
+التقنيات المستخدمة:
+${data.data?.tech || "غير محدد"}
+
+حالة البلاك ليست:
+${data.data?.blacklist}
+
+تم الاستطلاع بواسطة L8ab.me
+للاستخدام الأخلاقي فقط - مع تصريح كتابي
+    `.trim();
+  } catch (e) {
+    output.textContent = "فشل الاستطلاع - جرب مرة أخرى";
+  }
+}
+</script>
+</body>
+</html>
