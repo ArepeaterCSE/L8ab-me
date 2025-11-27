@@ -1,0 +1,17 @@
+{
+  "name": "l8ab-me",
+  "version": "2.0.0",
+  "description": "L8ab's Advanced Recon & Blacklist Tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "axios": "^1.7.7",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
